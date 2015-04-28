@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+HOSTNAME = "foobar"
+IP_ADDRESS = "192.168.33.30"
+
+SOURCE = "../src"
+TARGET = "/srv/httpd/"
+
+# 4 or 52
+PHP_VERSION = "4"
+
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  if PHP_VERSION == "52" then
+    config.vm.box = "CentOS-5.5-php52"
+    config.vm.box_url = "https://github.com/oppara/packer-templates/releases/download/CentOS-5.5-php52/CentOS-5.5-php52-virtualbox.box"
+  else
+    config.vm.box = "CentOS-5.5-php4"
+    config.vm.box_url = "https://github.com/oppara/packer-templates/releases/download/CentOS-5.5-php4/CentOS-5.5-php4-virtualbox.box"
+  end
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+  if Vagrant.has_plugin?("vagrant-vbguest")
+    config.vbguest.auto_update = false
+  end
+
+  if defined? HOSTNAME
+    config.vm.hostname = HOSTNAME
+  end
+
+  if defined? IP_ADDRESS
+    config.vm.network :private_network, ip: IP_ADDRESS
+  end
+
+  config.vm.synced_folder SOURCE, TARGET, \
+        create: true, owner: 'vagrant', group: 'vagrant', \
+        mount_options: ['dmode=777,fmode=666']
+
+  config.vm.provider :virtualbox do |vb|
+    if defined? HOSTNAME
+      vb.name = HOSTNAME
+    end
+    # vb.gui = true
+  end
+
+  config.vm.provision :shell, :inline => <<-EOT
+    ln -s /vagrant/etc/dev.conf /etc/httpd/conf.d/.
+    apachectl restart
+  EOT
+end
