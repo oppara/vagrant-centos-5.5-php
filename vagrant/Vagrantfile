@@ -3,14 +3,14 @@
 
 Dotenv.load
 
-HOSTNAME = "foobar"
+HOSTNAME = ENV["VAGRANT_HOSTNAME"] ? ENV["VAGRANT_HOSTNAME"] : ""
 IP_ADDRESS = ENV["VAGRANT_IP_ADDRESS"] ? ENV["VAGRANT_IP_ADDRESS"] : "192.168.33.30"
 
 SOURCE = "../src"
 TARGET = "/srv/httpd/"
 
 # 4 or 52
-PHP_VERSION = "4"
+PHP_VERSION = ENV["VAGRANT_PHP_VERSION"] ? ENV["VAGRANT_PHP_VERSION"] : "4"
 
 VAGRANTFILE_API_VERSION = "2"
 
@@ -32,7 +32,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vbguest.auto_update = false
   end
 
-  if defined? HOSTNAME
+  if HOSTNAME != ""
     config.vm.hostname = HOSTNAME
   end
 
@@ -45,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         mount_options: ['dmode=777,fmode=666']
 
   config.vm.provider :virtualbox do |vb|
-    if defined? HOSTNAME
+    if HOSTNAME != ""
       vb.name = HOSTNAME
     end
     # vb.gui = true
