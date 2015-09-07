@@ -54,7 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision :shell, :inline => <<-EOT
-    ln -s /vagrant/etc/dev.conf /etc/httpd/conf.d/.
+    cp -f /vagrant/etc/dev.conf /etc/httpd/conf.d/.
     apachectl restart
   EOT
 end
